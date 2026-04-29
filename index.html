@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ownably Partner Rolodex</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&family=Open+Sans:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --gold:#C9A23A;--gold-light:#f5e6a8;--gold-dark:#8a6a1a;
+  --sage:#31A06F;--sage-dark:#1a6845;
+  --black:#111111;--white:#ffffff;
+  --g50:#f8f8f6;--g100:#f0efe9;--g200:#e2e1d8;--g400:#9e9c90;--g600:#6b6960;--g800:#3a3830;
+}
+html,body{height:100%;font-family:'Open Sans',sans-serif;background:var(--g50);color:var(--black);font-size:14px}
+#auth-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:var(--black)}
+.auth-card{background:#1a1a1a;border:1px solid #333;border-radius:16px;padding:40px;text-align:center;max-width:380px;width:100%;margin:20px}
+.auth-logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:28px;color:var(--white);letter-spacing:2px;margin-bottom:6px}
+.auth-logo span{color:var(--gold)}
+.auth-sub{font-size:11px;color:var(--g400);font-family:'Montserrat',sans-serif;letter-spacing:1px;text-transform:uppercase;margin-bottom:32px}
+.auth-desc{font-size:13px;color:var(--g400);margin-bottom:28px;line-height:1.6}
+.btn-google{display:flex;align-items:center;justify-content:center;gap:10px;background:var(--white);color:var(--black);border:none;border-radius:10px;padding:13px 24px;font-size:14px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;width:100%;transition:background .15s}
+.btn-google:hover{background:var(--gold-light)}
+.google-icon{width:20px;height:20px}
+.auth-note{font-size:11px;color:#555;margin-top:18px;line-height:1.5}
+.auth-note a{color:var(--gold);text-decoration:none}
+
+#app{display:none;flex-direction:column;min-height:100vh}
+.header{background:var(--black);padding:12px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid var(--gold);position:sticky;top:0;z-index:50}
+.logo{font-family:'Montserrat',sans-serif;font-weight:700;font-size:16px;color:var(--white);letter-spacing:1px}
+.logo span{color:var(--gold)}
+.header-right{display:flex;align-items:center;gap:12px}
+.hstats{font-size:10px;color:var(--g400);font-family:'Montserrat',sans-serif;text-align:right}
+.sync-badge{font-size:10px;font-family:'Montserrat',sans-serif;padding:3px 9px;border-radius:4px;font-weight:600}
+.sync-ok{background:#e6f7f0;color:var(--sage-dark)}
+.sync-err{background:#fcebeb;color:#791F1F}
+.sync-busy{background:#faeeda;color:#633806}
+.user-btn{background:none;border:1px solid #333;border-radius:6px;padding:4px 10px;color:var(--g400);font-size:11px;font-family:'Montserrat',sans-serif;cursor:pointer}
+.user-btn:hover{border-color:var(--g600);color:var(--white)}
+
+.top-bar{background:var(--white);border-bottom:.5px solid var(--g200);padding:10px 20px;display:flex;gap:8px;align-items:center;flex-wrap:wrap;position:sticky;top:54px;z-index:40}
+.search-wrap{position:relative;flex:1;min-width:180px}
+.search-wrap input{width:100%;padding:8px 10px 8px 33px;border:.5px solid var(--g200);border-radius:8px;font-size:13px;background:var(--g50);color:var(--black);font-family:'Open Sans',sans-serif;outline:none}
+.search-wrap input:focus{border-color:var(--gold);background:var(--white)}
+.si{position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:14px;color:var(--g400);pointer-events:none}
+select{padding:7px 10px;border:.5px solid var(--g200);border-radius:8px;font-size:12px;background:var(--g50);color:var(--black);font-family:'Open Sans',sans-serif;outline:none;cursor:pointer}
+select:focus{border-color:var(--gold)}
+.btn-add{background:var(--gold);color:var(--black);border:none;border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;white-space:nowrap}
+.btn-add:hover{background:var(--gold-dark);color:var(--white)}
+.btn-qf{background:var(--black);color:var(--gold);border:1px solid var(--gold);border-radius:8px;padding:8px 14px;font-size:12px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;white-space:nowrap}
+.btn-qf:hover{background:var(--gold);color:var(--black)}
+
+.tabs{background:var(--white);border-bottom:.5px solid var(--g200);padding:0 20px;display:flex;overflow-x:auto;position:sticky;top:103px;z-index:39}
+.tab{padding:10px 16px;font-size:11px;font-weight:500;font-family:'Montserrat',sans-serif;color:var(--g600);cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;letter-spacing:.3px;text-transform:uppercase;flex-shrink:0}
+.tab.active{color:var(--gold);border-bottom-color:var(--gold)}
+.tab:hover{color:var(--black)}
+
+.content{padding:16px 20px;flex:1}
+.vendor-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:12px}
+.vcard{background:var(--white);border:.5px solid var(--g200);border-radius:12px;padding:14px;cursor:pointer;transition:border-color .15s}
+.vcard:hover{border-color:var(--gold)}
+.vcard.primary-card{border-left:3px solid var(--gold)}
+.card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:8px}
+.card-name{font-family:'Montserrat',sans-serif;font-weight:600;font-size:13px;color:var(--black)}
+.card-contact{font-size:11px;color:var(--g600);margin-top:2px}
+.badge{display:inline-block;padding:2px 7px;border-radius:4px;font-size:9px;font-weight:600;font-family:'Montserrat',sans-serif;letter-spacing:.3px;text-transform:uppercase}
+.b-approved{background:#e6f7f0;color:var(--sage-dark)}
+.b-prospect{background:#e6f1fb;color:#0C447C}
+.b-infrequent{background:#faeeda;color:#633806}
+.b-inactive{background:#f0efe9;color:#5F5E5A}
+.b-dnu{background:#fcebeb;color:#791F1F}
+.b-role{background:var(--g100);color:var(--g800)}
+.card-badges{display:flex;flex-wrap:wrap;gap:4px;margin:6px 0}
+.card-areas{display:flex;flex-wrap:wrap;gap:3px;margin:4px 0}
+.achip{font-size:9px;background:var(--g100);color:var(--g600);padding:2px 6px;border-radius:3px;font-family:'Montserrat',sans-serif}
+.card-bottom{display:flex;align-items:center;justify-content:space-between;margin-top:10px;border-top:.5px solid var(--g100);padding-top:10px}
+.hbar{display:flex;gap:2px}
+.hpip{width:6px;height:6px;border-radius:2px;background:var(--g200)}
+.hpip.on{background:var(--gold)}
+.hlabel{font-size:10px;color:var(--g600);font-family:'Montserrat',sans-serif;margin-left:5px}
+.card-actions{display:flex;gap:7px}
+.abt{width:28px;height:28px;border-radius:6px;border:.5px solid var(--g200);background:var(--g50);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;text-decoration:none;color:var(--black)}
+.abt:hover{background:var(--gold-light);border-color:var(--gold)}
+.flags{display:flex;gap:4px;margin-top:6px;flex-wrap:wrap}
+.flag{font-size:9px;padding:2px 6px;border-radius:3px;font-family:'Montserrat',sans-serif;font-weight:500}
+.fv{background:#e6f7f0;color:var(--sage-dark)}
+.fp{background:#faeeda;color:#633806}
+.fi{background:#fcebeb;color:#791F1F}
+.fr{background:#e6f1fb;color:#0C447C}
+.sg{margin-bottom:24px}
+.sg-title{font-family:'Montserrat',sans-serif;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g600);margin-bottom:10px;padding-bottom:6px;border-bottom:.5px solid var(--g200)}
+
+/* Detail view */
+.dheader{background:var(--black);color:var(--white);padding:16px 20px}
+.dback{background:none;border:none;color:var(--gold);font-size:11px;cursor:pointer;font-family:'Montserrat',sans-serif;font-weight:600;margin-bottom:8px;padding:0;letter-spacing:.5px;text-transform:uppercase}
+.dname{font-family:'Montserrat',sans-serif;font-weight:700;font-size:20px}
+.dsub{font-size:12px;color:var(--g400);margin-top:4px}
+.dbody{padding:20px}
+.dsec{margin-bottom:22px}
+.dsec-title{font-family:'Montserrat',sans-serif;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--g600);margin-bottom:10px;border-bottom:.5px solid var(--g200);padding-bottom:6px;display:flex;align-items:center;justify-content:space-between}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.dfl{font-size:10px;color:var(--g400);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.4px;margin-bottom:2px}
+.dfv{font-size:13px;color:var(--black);font-weight:500}
+.dfv a{color:var(--gold);text-decoration:none}
+.star{color:var(--gold);font-size:14px}
+.star.e{color:var(--g200)}
+.ecard{background:var(--g50);border:.5px solid var(--g200);border-radius:8px;padding:12px;margin-bottom:8px}
+.eaddr{font-weight:600;font-size:13px;color:var(--black)}
+.escope{font-size:12px;color:var(--g600);margin-top:3px}
+.emeta{display:flex;gap:12px;margin-top:8px;flex-wrap:wrap}
+.emi{font-size:11px;color:var(--g600)}
+.emi span{font-weight:600;color:var(--black)}
+.dtag{background:#e6f7f0;color:var(--sage-dark);border-radius:4px;font-size:9px;font-family:'Montserrat',sans-serif;padding:2px 6px;font-weight:600}
+.dtag.open{background:#e6f1fb;color:#0C447C}
+.srow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:16px}
+.scard{background:var(--g100);border-radius:8px;padding:12px;text-align:center}
+.sval{font-family:'Montserrat',sans-serif;font-weight:700;font-size:22px;color:var(--black)}
+.slabel{font-size:10px;color:var(--g600);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.5px;margin-top:2px}
+
+/* Quick Find */
+.qfpanel{background:var(--black);border-radius:12px;padding:20px;margin-bottom:16px}
+.qftitle{font-family:'Montserrat',sans-serif;font-weight:700;color:var(--gold);font-size:15px;margin-bottom:4px}
+.qfsub{font-size:12px;color:var(--g400);margin-bottom:16px}
+.qfgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qfsel{padding:10px 12px;border:1px solid #333;border-radius:8px;font-size:13px;background:#1a1a1a;color:var(--white);font-family:'Open Sans',sans-serif;outline:none;width:100%}
+.qfsel:focus{border-color:var(--gold)}
+.bfind{background:var(--gold);color:var(--black);border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:700;font-family:'Montserrat',sans-serif;cursor:pointer;width:100%;margin-top:10px}
+.bfind:hover{background:var(--gold-dark);color:var(--white)}
+.qfrc{background:var(--white);border:.5px solid var(--g200);border-radius:10px;padding:14px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.qfrc.tp{border-left:3px solid var(--gold)}
+.qfrank{font-family:'Montserrat',sans-serif;font-size:18px;font-weight:700;color:var(--gold);min-width:28px}
+.qfname{font-family:'Montserrat',sans-serif;font-weight:600;font-size:14px}
+.qfdet{font-size:11px;color:var(--g600);margin-top:2px}
+.bcall{background:var(--sage);color:var(--white);border:none;border-radius:7px;padding:8px 14px;font-size:12px;font-weight:600;font-family:'Montserrat',sans-serif;cursor:pointer;text-decoration:none;display:inline-block}
+.bcall:hover{background:var(--sage-dark)}
+
+/* Modal */
+.modal-overlay{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.6);z-index:100;overflow-y:auto;padding:30px 16px}
+.modal-overlay.open{display:flex;align-items:flex-start;justify-content:center}
+.modal{background:var(--white);border-radius:14px;width:100%;max-width:560px;padding:24px;position:relative}
+.modal-title{font-family:'Montserrat',sans-serif;font-weight:700;font-size:17px;margin-bottom:18px;color:var(--black);padding-bottom:12px;border-bottom:1px solid var(--g200)}
+.mclose{position:absolute;top:18px;right:18px;background:none;border:none;font-size:20px;cursor:pointer;color:var(--g400);line-height:1}
+.mclose:hover{color:var(--black)}
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ff{grid-column:1/-1}
+.fgrp{display:flex;flex-direction:column;gap:4px}
+.flabel{font-size:11px;font-weight:600;color:var(--g600);font-family:'Montserrat',sans-serif;text-transform:uppercase;letter-spacing:.4px}
+.finput{padding:8px 10px;border:.5px solid var(--g200);border-radius:7px;font-size:13px;font-family:'Open Sans',sans-serif;color:var(--black);background:var(--g50);outline:none;width:100%}
+.finput:focus{border-color:var(--gold);background:var(--white)}
+.cbgrid{display:flex;flex-wrap:wrap;gap:6px}
+.cbi{display:flex;align-items:center;gap:4px;font-size:12px;cursor:pointer}
+.cbi input{accent-color:var(--gold)}
+.faction{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;padding-top:14px;border-top:.5px solid var(--g200)}
+.bsec{background:none;border:.5px solid var(--g200);border-radius:8px;padding:8px 16px;font-size:13px;cursor:pointer;font-family:'Montserrat',sans-serif;color:var(--g600)}
+.bprim{background:var(--gold);border:none;border-radius:8px;padding:8px 20px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Montserrat',sans-serif;color:var(--black)}
+.bprim:hover{background:var(--gold-dark);color:var(--white)}
+.rin{display:flex;gap:4px;cursor:pointer}
+.rst{font-size:22px;color:var(--g200);line-height:1}
+.rst.on{color:var(--gold)}
+
+.empty{text-align:center;padding:40px 20px;color:var(--g400)}
+.empty-t{font-family:'Montserrat',sans-serif;font-weight:600;font-size:15px;margin-bottom:6px;color:var(--g600)}
+.toast{position:fixed;bottom:20px;right:20px;background:var(--black);color:var(--white);padding:10px 16px;border-radius:8px;font-size:12px;font-family:'Montserrat',sans-serif;border-left:3px solid var(--gold);z-index:999;opacity:0;transition:opacity .3s;pointer-events:none;max-width:300px}
+.toast.show{opacity:1}
+.spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--g200);border-top-color:var(--gold);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:6px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-screen{display:flex;align-items:center;justify-content:center;min-height:200px;flex-direction:column;gap:12px;color:var(--g600);font-family:'Montserrat',sans-serif}
+.loading-screen .spinner{width:24px;height:24px}
+
+@media(max-width:600px){
+  .fg{grid-template-columns:1fr}
+  .ff{grid-column:1}
+  .vendor-grid{grid-template-columns:1fr}
+  .dgrid{grid-template-columns:1fr}
+  .srow{grid-template-columns:repeat(3,1fr)}
+  .qfgrid{grid-template-columns:1fr}
+  .top-bar{gap:6px}
+  .tabs{top:92px}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen">
+  <div class="auth-card">
+    <div class="auth-logo">OWN<span>ABLY</span></div>
+    <div class="auth-sub">Partner Rolodex</div>
+    <p class="auth-desc">Sign in with your Ownably Google account to access and sync your vendor database.</p>
+    <button class="btn-google" onclick="signIn()">
+      <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+      Sign in with Google
+    </button>
+    <p class="auth-note">Uses your <strong>daniel@ownablygroup.com</strong> account. Data is stored in your Google Drive in <strong>08 — TEAM &amp; VENDORS</strong>.<br><br>First time? <a href="#" onclick="showSetupNote()">See setup note</a>.</p>
+    <div id="setup-note" style="display:none;margin-top:14px;background:#1a1a1a;border:1px solid #333;border-radius:8px;padding:14px;font-size:11px;color:var(--g400);text-align:left;line-height:1.7">
+      <strong style="color:var(--white)">One-time setup required:</strong><br>
+      This app uses Google OAuth. To run it locally, you need to register it in <a href="https://console.cloud.google.com" target="_blank" style="color:var(--gold)">Google Cloud Console</a> and replace the <code style="color:var(--gold)">CLIENT_ID</code> constant in this file with your own OAuth 2.0 Client ID (Web Application type). Add <code style="color:var(--gold)">http://localhost</code> and your file path as authorized origins. Enable the Google Sheets API in your project.
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div id="app">
+  <div class="header">
+    <div>
+      <div class="logo">OWN<span>ABLY</span></div>
+      <div style="font-size:10px;color:var(--g400);font-family:'Montserrat',sans-serif;letter-spacing:.5px;text-transform:uppercase">Partner Rolodex</div>
+    </div>
+    <div class="header-right">
+      <div id="hstats" class="hstats"></div>
+      <div id="sync-badge" class="sync-badge sync-busy">Connecting...</div>
+      <button class="user-btn" onclick="signOut()" id="user-btn">Sign Out</button>
+    </div>
+  </div>
+
+  <div id="main-view"></div>
+</div>
+
+<div id="modal-overlay" class="modal-overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modal-inner"></div>
+</div>
+<div id="eng-modal-overlay" class="modal-overlay" onclick="if(event.target===this)closeEngModal()">
+  <div class="modal" id="eng-modal-inner"></div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+// ── CONFIG ──────────────────────────────────────────────────────────────────
+const CLIENT_ID = '57538304595-oph5cs0rbo8k01vjav3pt8f12eat254i.apps.googleusercontent.com'; // Replace with your OAuth 2.0 Client ID
+const SHEET_ID  = '1NrNMtRcG1uhffmUyFfVexxuOjJhhiyJAmH7M9jnga4k';
+const SCOPES    = 'https://www.googleapis.com/auth/spreadsheets https://www.googleapis.com/auth/drive.file';
+const VENDORS_SHEET = 'Vendors';
+const ENG_SHEET     = 'Engagements';
+const VENDOR_HEADERS = ['id','display_name','contact_person','phone','email','website','role_type','trade_categories','service_areas','status','quality_rating','reliability_rating','pricing_profile','times_used','last_used_date','insurance_license_verified','is_primary','flags','notes'];
+const ENG_HEADERS    = ['id','vendor_id','property_address','county','scope','quoted_price','final_price','start_date','completion_date','outcome_rating','outcome_notes','deal_path','deal_status'];
+
+// ── REFERENCE DATA ───────────────────────────────────────────────────────────
+const ROLE_TYPES  = ['Contractor / Trade','Attorney – Real Estate','Attorney – Probate','Credit Repair','Investor / Equity Partner','Lender – Hard Money','Lender – DSCR','Cleaner / Trashout','Title Company','Transaction Coordinator','Other Service Provider'];
+const TRADE_CATS  = ['Roofing','AC / HVAC','Kitchen','Cabinets','Bathrooms','Trashout / Junk Removal','Movers','Landscaping / Yard','Painting','Carpentry','Pool Repair','Structural / Engineering','Mold Remediation','Handyman / General Repairs','Plumbing','Cleaning','Other'];
+const COUNTIES    = ['Miami-Dade','Broward','Palm Beach','Martin','St. Lucie','Other Florida'];
+const STATUSES    = ['Prospect','Approved','Infrequent','Inactive','Do Not Use'];
+const PRICING     = ['Budget','Standard','Premium','Unknown'];
+
+const SEED_VENDORS = [
+  {id:1,display_name:'Rivera Roofing Co.',contact_person:'Carlos Rivera',phone:'(305) 555-0181',email:'carlos@riveraroofing.com',website:'',role_type:'Contractor / Trade',trade_categories:['Roofing'],service_areas:['Miami-Dade','Broward'],status:'Approved',quality_rating:5,reliability_rating:5,pricing_profile:'Standard',times_used:8,last_used_date:'2024-03-15',insurance_license_verified:true,is_primary:true,flags:['verified'],notes:'SAMPLE — On time, clean site, no issues.'},
+  {id:2,display_name:'CoolBreeze HVAC',contact_person:'Mike Johnson',phone:'(954) 555-0242',email:'mike@coolbreeze.com',website:'',role_type:'Contractor / Trade',trade_categories:['AC / HVAC'],service_areas:['Miami-Dade','Broward','Palm Beach'],status:'Approved',quality_rating:4,reliability_rating:4,pricing_profile:'Budget',times_used:12,last_used_date:'2024-04-02',insurance_license_verified:true,is_primary:false,flags:['verified'],notes:'SAMPLE — Fast turnaround on AC replacements.'},
+  {id:3,display_name:'Sunshine Title Services',contact_person:'Diana Perez',phone:'(305) 555-0360',email:'diana@sunshinetitle.com',website:'sunshinetitle.com',role_type:'Title Company',trade_categories:[],service_areas:['Miami-Dade','Broward','Palm Beach'],status:'Approved',quality_rating:5,reliability_rating:5,pricing_profile:'Standard',times_used:22,last_used_date:'2024-04-10',insurance_license_verified:true,is_primary:true,flags:['verified'],notes:'SAMPLE — Handles creative structures well.'},
+  {id:4,display_name:'Smith Law – Probate',contact_person:'Robert Smith, Esq.',phone:'(305) 555-0421',email:'rsmith@smithlaw.com',website:'',role_type:'Attorney – Probate',trade_categories:[],service_areas:['Miami-Dade','Broward'],status:'Approved',quality_rating:4,reliability_rating:4,pricing_profile:'Premium',times_used:5,last_used_date:'2024-02-20',insurance_license_verified:false,is_primary:false,flags:[],notes:'SAMPLE — Thorough, slow on responses.'},
+  {id:5,display_name:'CleanSlate Trashouts',contact_person:'Jorge Mendez',phone:'(786) 555-0515',email:'jorge@cleanslate.com',website:'',role_type:'Cleaner / Trashout',trade_categories:['Trashout / Junk Removal','Cleaning'],service_areas:['Miami-Dade','Broward','Palm Beach'],status:'Approved',quality_rating:5,reliability_rating:5,pricing_profile:'Budget',times_used:15,last_used_date:'2024-04-08',insurance_license_verified:false,is_primary:true,flags:[],notes:'SAMPLE — Same-day available.'},
+  {id:6,display_name:'Lopez Plumbing',contact_person:'Ray Lopez',phone:'(954) 555-0611',email:'ray@lopezplumb.com',website:'',role_type:'Contractor / Trade',trade_categories:['Plumbing'],service_areas:['Broward','Palm Beach'],status:'Approved',quality_rating:3,reliability_rating:3,pricing_profile:'Standard',times_used:3,last_used_date:'2023-12-05',insurance_license_verified:false,is_primary:false,flags:['price-creep'],notes:'SAMPLE — Get quote in writing.'},
+  {id:7,display_name:'Coastal Hard Money',contact_person:'Sandra Wu',phone:'(561) 555-0777',email:'sandra@coastalhm.com',website:'',role_type:'Lender – Hard Money',trade_categories:[],service_areas:['Palm Beach','Martin','St. Lucie'],status:'Prospect',quality_rating:0,reliability_rating:0,pricing_profile:'Unknown',times_used:0,last_used_date:'',insurance_license_verified:false,is_primary:false,flags:['review'],notes:'SAMPLE — Needs vetting.'},
+  {id:8,display_name:'Gulf Coast Painters',contact_person:'Tony Reyes',phone:'(305) 555-0882',email:'tony@gulfcoastpaint.com',website:'',role_type:'Contractor / Trade',trade_categories:['Painting'],service_areas:['Miami-Dade'],status:'Infrequent',quality_rating:3,reliability_rating:2,pricing_profile:'Budget',times_used:2,last_used_date:'2023-09-12',insurance_license_verified:false,is_primary:false,flags:['issues'],notes:'SAMPLE — Job issue Sept 23.'}
+];
+const SEED_ENG = [
+  {id:1,vendor_id:1,property_address:'2847 NW 12th Ave, Miami, FL 33127',county:'Miami-Dade',scope:'Full roof replacement, 30yr architectural shingles',quoted_price:14500,final_price:14500,start_date:'2024-02-10',completion_date:'2024-02-14',outcome_rating:5,outcome_notes:'SAMPLE — On time, clean site.',deal_path:'Path A Cash',deal_status:'closed'},
+  {id:2,vendor_id:2,property_address:'1421 SW 34th Ave, Miami, FL 33145',county:'Broward',scope:'AC replacement, 3-ton Carrier unit',quoted_price:4200,final_price:4350,start_date:'2024-03-20',completion_date:'2024-03-21',outcome_rating:4,outcome_notes:'SAMPLE — Slightly over quote.',deal_path:'Path C Fix-to-List',deal_status:'closed'},
+  {id:3,vendor_id:5,property_address:'9104 Cypress Lake Dr, Fort Lauderdale, FL 33328',county:'Broward',scope:'Full trashout, 3 dumpsters, clean and sweep',quoted_price:1800,final_price:1800,start_date:'2024-04-07',completion_date:'2024-04-08',outcome_rating:5,outcome_notes:'SAMPLE — Same day, great job.',deal_path:'Path B Sub-To',deal_status:'open'}
+];
+
+// ── STATE ────────────────────────────────────────────────────────────────────
+let S = {
+  view:'list', tab:'all', search:'', fRole:'', fTrade:'', fArea:'', fStatus:'', fPricing:'',
+  vendors:[], engagements:[], sel:null, qfTrade:'', qfArea:'', qfResults:null,
+  fd:{}, efd:{}, accessToken:null, loading:true
+};
+let nextVId=9, nextEId=4;
+
+// ── OAUTH ────────────────────────────────────────────────────────────────────
+function showSetupNote(){document.getElementById('setup-note').style.display='block';}
+
+function signIn(){
+  const params = new URLSearchParams({
+    client_id: CLIENT_ID,
+    redirect_uri: location.origin + location.pathname,
+    response_type: 'token',
+    scope: SCOPES,
+    include_granted_scopes: 'true',
+    state: 'signin'
+  });
+  location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' + params;
+}
+
+function signOut(){
+  if(S.accessToken){
+    fetch(`https://oauth2.googleapis.com/revoke?token=${S.accessToken}`,{method:'POST'}).catch(()=>{});
+  }
+  sessionStorage.removeItem('gtoken');
+  location.reload();
+}
+
+function checkAuthCallback(){
+  const hash = new URLSearchParams(location.hash.substring(1));
+  const token = hash.get('access_token');
+  if(token){
+    S.accessToken = token;
+    sessionStorage.setItem('gtoken', token);
+    history.replaceState(null,'',location.pathname);
+    return true;
+  }
+  const stored = sessionStorage.getItem('gtoken');
+  if(stored){ S.accessToken = stored; return true; }
+  return false;
+}
+
+// ── SHEETS API ───────────────────────────────────────────────────────────────
+async function sheetsGet(range){
+  const r = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueRenderOption=UNFORMATTED_VALUE`,
+    {headers:{Authorization:`Bearer ${S.accessToken}`}}
+  );
+  if(r.status===401){signOut();throw new Error('Token expired');}
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function sheetsPut(range, values){
+  const r = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}?valueInputOption=USER_ENTERED`,
+    {method:'PUT', headers:{Authorization:`Bearer ${S.accessToken}`,'Content-Type':'application/json'}, body:JSON.stringify({values})}
+  );
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function sheetsAppend(range, values){
+  const r = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}/values/${encodeURIComponent(range)}:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
+    {method:'POST', headers:{Authorization:`Bearer ${S.accessToken}`,'Content-Type':'application/json'}, body:JSON.stringify({values})}
+  );
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+async function sheetsBatchUpdate(requests){
+  const r = await fetch(
+    `https://sheets.googleapis.com/v4/spreadsheets/${SHEET_ID}:batchUpdate`,
+    {method:'POST', headers:{Authorization:`Bearer ${S.accessToken}`,'Content-Type':'application/json'}, body:JSON.stringify({requests})}
+  );
+  if(!r.ok) throw new Error(await r.text());
+  return r.json();
+}
+
+// ── DATA SERIALIZATION ───────────────────────────────────────────────────────
+function vToRow(v){
+  return [v.id,v.display_name,v.contact_person,v.phone,v.email,v.website,v.role_type,
+    (v.trade_categories||[]).join('|'),(v.service_areas||[]).join('|'),
+    v.status,v.quality_rating,v.reliability_rating,v.pricing_profile,
+    v.times_used,v.last_used_date,v.insurance_license_verified?1:0,v.is_primary?1:0,
+    (v.flags||[]).join('|'),v.notes||''];
+}
+function rowToV(r){
+  return {id:+r[0],display_name:r[1]||'',contact_person:r[2]||'',phone:r[3]||'',email:r[4]||'',website:r[5]||'',role_type:r[6]||'',
+    trade_categories:r[7]?String(r[7]).split('|').filter(Boolean):[],
+    service_areas:r[8]?String(r[8]).split('|').filter(Boolean):[],
+    status:r[9]||'Prospect',quality_rating:+r[10]||0,reliability_rating:+r[11]||0,
+    pricing_profile:r[12]||'Unknown',times_used:+r[13]||0,last_used_date:r[14]||'',
+    insurance_license_verified:r[15]==1||r[15]===true,is_primary:r[16]==1||r[16]===true,
+    flags:r[17]?String(r[17]).split('|').filter(Boolean):[],notes:r[18]||''};
+}
+function eToRow(e){
+  return [e.id,e.vendor_id,e.property_address,e.county,e.scope,e.quoted_price,e.final_price,e.start_date,e.completion_date,e.outcome_rating,e.outcome_notes||'',e.deal_path||'',e.deal_status||'open'];
+}
+function rowToE(r){
+  return {id:+r[0],vendor_id:+r[1],property_address:r[2]||'',county:r[3]||'',scope:r[4]||'',quoted_price:+r[5]||0,final_price:+r[6]||0,start_date:r[7]||'',completion_date:r[8]||'',outcome_rating:+r[9]||0,outcome_notes:r[10]||'',deal_path:r[11]||'',deal_status:r[12]||'open'};
+}
+
+// ── SHEET INIT ───────────────────────────────────────────────────────────────
+async function initSheet(){
+  setSyncStatus('busy','Loading...');
+  try {
+    let needsSetup = false;
+    try {
+      const check = await sheetsGet(`${VENDORS_SHEET}!A1:A1`);
+      if(!check.values || check.values[0][0] !== 'id') needsSetup = true;
+    } catch(e){ needsSetup = true; }
+
+    if(needsSetup){
+      // Try to add sheets (may already exist — that's fine)
+      await sheetsBatchUpdate({requests:[
+        {addSheet:{properties:{title:VENDORS_SHEET,index:0}}},
+        {addSheet:{properties:{title:ENG_SHEET,index:1}}}
+      ]}).catch(()=>{});
+      await sheetsPut(`${VENDORS_SHEET}!A1:S1`,[VENDOR_HEADERS]);
+      await sheetsPut(`${ENG_SHEET}!A1:M1`,[ENG_HEADERS]);
+      await sheetsAppend(`${VENDORS_SHEET}!A2`, SEED_VENDORS.map(vToRow));
+      await sheetsAppend(`${ENG_SHEET}!A2`, SEED_ENG.map(eToRow));
+      S.vendors = JSON.parse(JSON.stringify(SEED_VENDORS));
+      S.engagements = JSON.parse(JSON.stringify(SEED_ENG));
+      showToast('Sheet initialized with sample data.');
+    } else {
+      const vd = await sheetsGet(`${VENDORS_SHEET}!A2:S2000`);
+      S.vendors = (vd.values||[]).filter(r=>r[0]).map(rowToV);
+      if(S.vendors.length) nextVId = Math.max(...S.vendors.map(v=>v.id))+1;
+      const ed = await sheetsGet(`${ENG_SHEET}!A2:M2000`);
+      S.engagements = (ed.values||[]).filter(r=>r[0]).map(rowToE);
+      if(S.engagements.length) nextEId = Math.max(...S.engagements.map(e=>e.id))+1;
+    }
+    S.loading = false;
+    setSyncStatus('ok','Synced ✓');
+    updateHeaderStats();
+  } catch(err){
+    S.loading = false;
+    setSyncStatus('err','Sync error');
+    showToast('Could not connect to sheet. Check console for details.');
+    console.error(err);
+  }
+  render();
+}
+
+async function saveVendorRow(v, isNew){
+  try {
+    setSyncStatus('busy','Saving...');
+    if(isNew){
+      await sheetsAppend(`${VENDORS_SHEET}!A2`,[vToRow(v)]);
+    } else {
+      const idx = S.vendors.findIndex(x=>x.id===v.id);
+      const row = idx+2;
+      await sheetsPut(`${VENDORS_SHEET}!A${row}:S${row}`,[vToRow(v)]);
+    }
+    setSyncStatus('ok','Saved ✓');
+  } catch(e){ setSyncStatus('err','Save failed'); showToast('Save failed — check connection.'); }
+}
+
+async function clearVendorRow(id){
+  try {
+    setSyncStatus('busy','Deleting...');
+    const data = await sheetsGet(`${VENDORS_SHEET}!A2:A2000`);
+    const rows = data.values||[];
+    const ri = rows.findIndex(r=>+r[0]===id);
+    if(ri>=0) await sheetsPut(`${VENDORS_SHEET}!A${ri+2}:S${ri+2}`,[['','','','','','','','','','','','','','','','','','','']]);
+    // Also clear engagements for this vendor
+    const ed = await sheetsGet(`${ENG_SHEET}!A2:B2000`);
+    const ers = ed.values||[];
+    for(let i=0;i<ers.length;i++){
+      if(+ers[i][1]===id) await sheetsPut(`${ENG_SHEET}!A${i+2}:M${i+2}`,[['','','','','','','','','','','','','']]);
+    }
+    setSyncStatus('ok','Deleted ✓');
+  } catch(e){ setSyncStatus('err','Delete sync failed'); }
+}
+
+async function saveEngRow(e, v){
+  try {
+    setSyncStatus('busy','Saving...');
+    await sheetsAppend(`${ENG_SHEET}!A2`,[eToRow(e)]);
+    if(v){
+      const idx = S.vendors.findIndex(x=>x.id===v.id);
+      const row = idx+2;
+      await sheetsPut(`${VENDORS_SHEET}!A${row}:S${row}`,[vToRow(v)]);
+    }
+    setSyncStatus('ok','Saved ✓');
+  } catch(e2){ setSyncStatus('err','Save failed'); }
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+function setSyncStatus(type,msg){
+  const el=document.getElementById('sync-badge');
+  if(!el)return;
+  el.className='sync-badge sync-'+type;
+  el.textContent=msg;
+}
+
+function hs(v){
+  let s=0;
+  s+=Math.round(((v.quality_rating||0)+(v.reliability_rating||0))/2*10);
+  if(v.times_used>=10)s+=20;else if(v.times_used>=5)s+=10;else if(v.times_used>=2)s+=5;
+  if(v.last_used_date){const d=(Date.now()-new Date(v.last_used_date))/86400000;if(d<90)s+=10;else if(d<365)s+=5;}
+  if(v.insurance_license_verified)s+=10;
+  return Math.min(100,s);
+}
+function hpips(v){const f=Math.round(hs(v)/20);let h='';for(let i=0;i<5;i++)h+=`<div class="hpip${i<f?' on':''}"></div>`;return h;}
+function strs(n,mx=5){let s='';for(let i=1;i<=mx;i++)s+=`<span class="star${i<=n?'':' e'}">&#9733;</span>`;return s;}
+function sbadge(s){const m={Approved:'approved',Prospect:'prospect',Infrequent:'infrequent',Inactive:'inactive','Do Not Use':'dnu'};return`<span class="badge b-${m[s]||'role'}">${s}</span>`;}
+function flagH(fs){if(!fs||!fs.length)return'';const m={verified:['fv','Ins. Verified'],'price-creep':['fp','Price Creep'],issues:['fi','Job Issues'],review:['fr','Pending Review']};return'<div class="flags">'+fs.map(f=>m[f]?`<span class="flag ${m[f][0]}">${m[f][1]}</span>`:'').join('')+'</div>';}
+function showToast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),3000);}
+function updateHeaderStats(){
+  const el=document.getElementById('hstats');
+  if(el) el.innerHTML=`${S.vendors.filter(v=>v.status==='Approved').length} approved &nbsp;·&nbsp; ${S.engagements.length} engagements`;
+}
+
+// ── FILTER ────────────────────────────────────────────────────────────────────
+function filtVs(){
+  let vs=S.vendors.filter(v=>{
+    const s=S.search.toLowerCase();
+    if(s&&!v.display_name.toLowerCase().includes(s)&&!v.contact_person.toLowerCase().includes(s)&&!(v.trade_categories||[]).join(' ').toLowerCase().includes(s)&&!(v.service_areas||[]).join(' ').toLowerCase().includes(s)&&!(v.notes||'').toLowerCase().includes(s))return false;
+    if(S.fRole&&v.role_type!==S.fRole)return false;
+    if(S.fTrade&&!(v.trade_categories||[]).includes(S.fTrade))return false;
+    if(S.fArea&&!(v.service_areas||[]).includes(S.fArea))return false;
+    if(S.fStatus&&v.status!==S.fStatus)return false;
+    if(S.fPricing&&v.pricing_profile!==S.fPricing)return false;
+    return true;
+  });
+  if(S.tab==='all')vs.sort((a,b)=>a.display_name.localeCompare(b.display_name));
+  if(S.tab==='top')vs.sort((a,b)=>hs(b)-hs(a));
+  if(S.tab==='recent')vs.sort((a,b)=>(b.last_used_date||'').localeCompare(a.last_used_date||''));
+  return vs;
+}
+
+// ── RENDER: VENDOR CARD ───────────────────────────────────────────────────────
+function vcardH(v){
+  const areas=(v.service_areas||[]).map(a=>`<span class="achip">${a}</span>`).join('');
+  const trades=(v.trade_categories||[]).map(t=>`<span class="badge b-role" style="font-size:8px">${t}</span>`).join('');
+  const tel=v.phone?`<a class="abt" href="tel:${v.phone.replace(/\D/g,'')}" title="Call" onclick="event.stopPropagation()">&#128222;</a>`:'';
+  const mail=v.email?`<a class="abt" href="mailto:${v.email}" title="Email" onclick="event.stopPropagation()">&#9993;</a>`:'';
+  return `<div class="vcard${v.is_primary?' primary-card':''}" onclick="openDetail(${v.id})">
+<div class="card-top"><div><div class="card-name">${v.display_name}${v.is_primary?' <span style="color:var(--gold)">&#9733;</span>':''}</div><div class="card-contact">${v.contact_person||''}</div></div>${sbadge(v.status)}</div>
+<div class="card-badges"><span class="badge b-role">${v.role_type}</span>${trades}</div>
+<div class="card-areas">${areas}</div>
+${flagH(v.flags)}
+<div class="card-bottom"><div style="display:flex;align-items:center"><div class="hbar">${hpips(v)}</div><span class="hlabel">${hs(v)}</span></div><div class="card-actions">${tel}${mail}</div></div>
+</div>`;
+}
+
+// ── RENDER: LIST VIEW ─────────────────────────────────────────────────────────
+function renderList(){
+  if(S.loading){
+    document.getElementById('main-view').innerHTML=`<div class="loading-screen"><span class="spinner"></span><span>Loading from Google Sheets...</span></div>`;
+    return;
+  }
+  const vs=filtVs();
+  let grid='';
+  if(S.tab==='trade'){
+    const g={};vs.forEach(v=>{const t=(v.trade_categories||['(No Trade)'])[0];(g[t]=g[t]||[]).push(v);});
+    Object.keys(g).sort().forEach(k=>{grid+=`<div class="sg"><div class="sg-title">${k} (${g[k].length})</div><div class="vendor-grid">${g[k].map(vcardH).join('')}</div></div>`;});
+  } else if(S.tab==='area'){
+    const g={};vs.forEach(v=>{(v.service_areas||['Other']).forEach(a=>{(g[a]=g[a]||[]);if(!g[a].find(x=>x.id===v.id))g[a].push(v);});});
+    COUNTIES.filter(c=>g[c]).forEach(k=>{grid+=`<div class="sg"><div class="sg-title">${k} (${g[k].length})</div><div class="vendor-grid">${g[k].map(vcardH).join('')}</div></div>`;});
+  } else {
+    grid=`<div class="vendor-grid">${vs.map(vcardH).join('')}</div>`;
+  }
+  if(!vs.length) grid=`<div class="empty"><div class="empty-t">No vendors found</div><div>Adjust filters or add a new vendor.</div></div>`;
+
+  document.getElementById('main-view').innerHTML=`
+<div class="top-bar">
+  <div class="search-wrap"><span class="si">&#128269;</span><input type="text" placeholder="Search vendors, trades, areas..." value="${S.search}" oninput="S.search=this.value;renderList()"></div>
+  <select onchange="S.fRole=this.value;renderList()"><option value="">All Roles</option>${ROLE_TYPES.map(r=>`<option value="${r}"${S.fRole===r?' selected':''}>${r}</option>`).join('')}</select>
+  <select onchange="S.fTrade=this.value;renderList()"><option value="">All Trades</option>${TRADE_CATS.map(t=>`<option value="${t}"${S.fTrade===t?' selected':''}>${t}</option>`).join('')}</select>
+  <select onchange="S.fArea=this.value;renderList()"><option value="">All Counties</option>${COUNTIES.map(c=>`<option value="${c}"${S.fArea===c?' selected':''}>${c}</option>`).join('')}</select>
+  <select onchange="S.fStatus=this.value;renderList()"><option value="">All Statuses</option>${STATUSES.map(s=>`<option value="${s}"${S.fStatus===s?' selected':''}>${s}</option>`).join('')}</select>
+  <button class="btn-qf" onclick="S.view='qf';S.qfResults=null;render()">&#128269; Quick Find</button>
+  <button class="btn-add" onclick="openAdd()">+ Add Vendor</button>
+</div>
+<div class="tabs">${[['all','All Vendors'],['trade','By Trade'],['area','By Area'],['top','Top Rated'],['recent','Recently Used']].map(([k,l])=>`<div class="tab${S.tab===k?' active':''}" onclick="S.tab='${k}';renderList()">${l}</div>`).join('')}</div>
+<div class="content">${grid}</div>`;
+  updateHeaderStats();
+}
+
+// ── RENDER: QUICK FIND ────────────────────────────────────────────────────────
+function renderQF(){
+  let res='';
+  if(S.qfResults){
+    if(!S.qfResults.length){res=`<div class="empty"><div class="empty-t">No approved vendors found</div><div>Try different filters or add a vendor.</div></div>`;}
+    else res=S.qfResults.map((v,i)=>`<div class="qfrc${i===0?' tp':''}">
+<div class="qfrank">#${i+1}</div>
+<div style="flex:1"><div class="qfname">${v.display_name}${i===0?` <span style="color:var(--gold);font-size:10px;font-family:'Montserrat',sans-serif;font-weight:700">TOP PICK</span>`:''}</div>
+<div class="qfdet">${v.contact_person||''} &nbsp;·&nbsp; Health: ${hs(v)} &nbsp;·&nbsp; ${v.times_used}x used</div>
+<div class="qfdet">${(v.service_areas||[]).join(', ')} &nbsp;·&nbsp; ${v.pricing_profile}</div></div>
+<a class="bcall" href="${v.phone?'tel:'+v.phone.replace(/\D/g,''):'#'}">${v.phone||'No phone'}</a>
+</div>`).join('');
+  }
+  document.getElementById('main-view').innerHTML=`
+<div class="top-bar"><button class="bsec" onclick="S.view='list';S.qfResults=null;render()">&larr; Back</button><span style="font-family:'Montserrat',sans-serif;font-weight:600;font-size:14px;color:var(--black)">Quick Find</span></div>
+<div class="content">
+<div class="qfpanel">
+  <div class="qftitle">Who Do I Call?</div>
+  <div class="qfsub">Select trade + county to get your top approved vendors instantly.</div>
+  <div class="qfgrid">
+    <select class="qfsel" id="qf-t"><option value="">Select Trade...</option>${TRADE_CATS.map(t=>`<option value="${t}"${S.qfTrade===t?' selected':''}>${t}</option>`).join('')}<option value="__any__"${S.qfTrade==='__any__'?' selected':''}>Any / Not Listed</option></select>
+    <select class="qfsel" id="qf-a"><option value="">Select County...</option>${COUNTIES.map(c=>`<option value="${c}"${S.qfArea===c?' selected':''}>${c}</option>`).join('')}</select>
+  </div>
+  <button class="bfind" onclick="runQF()">Find Vendors</button>
+</div>
+<div id="qfres">${res}</div>
+</div>`;
+}
+
+function runQF(){
+  S.qfTrade=document.getElementById('qf-t').value;
+  S.qfArea=document.getElementById('qf-a').value;
+  let vs=S.vendors.filter(v=>v.status==='Approved');
+  if(S.qfArea)vs=vs.filter(v=>(v.service_areas||[]).includes(S.qfArea));
+  if(S.qfTrade&&S.qfTrade!=='__any__')vs=vs.filter(v=>(v.trade_categories||[]).includes(S.qfTrade));
+  vs.sort((a,b)=>hs(b)-hs(a));
+  S.qfResults=vs.slice(0,5);
+  renderQF();
+}
+
+// ── RENDER: DETAIL ────────────────────────────────────────────────────────────
+function renderDetail(v){
+  const eng=S.engagements.filter(e=>e.vendor_id===v.id);
+  const engH=eng.length?eng.map(e=>`<div class="ecard">
+<div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px"><div class="eaddr">${e.property_address}</div><span class="dtag ${e.deal_status}">${e.deal_path||''} — ${e.deal_status||''}</span></div>
+<div class="escope">${e.scope}</div>
+<div class="emeta">
+<div class="emi">Quoted: <span>$${(e.quoted_price||0).toLocaleString()}</span></div>
+<div class="emi">Final: <span>$${(e.final_price||0).toLocaleString()}</span></div>
+<div class="emi">Done: <span>${e.completion_date||'—'}</span></div>
+<div class="emi">Outcome: <span>${strs(e.outcome_rating)}</span></div>
+</div>
+${e.outcome_notes?`<div style="font-size:11px;color:var(--g600);margin-top:5px">${e.outcome_notes}</div>`:''}
+</div>`).join(''):`<div style="font-size:12px;color:var(--g400);padding:8px 0">No engagements logged yet.</div>`;
+
+  document.getElementById('main-view').innerHTML=`
+<div class="dheader">
+<button class="dback" onclick="S.view='list';S.sel=null;render()">&larr; Back to Rolodex</button>
+<div class="dname">${v.display_name}</div>
+<div class="dsub">${v.role_type}${v.is_primary?' &nbsp;·&nbsp; &#9733; Primary Vendor':''}</div>
+</div>
+<div class="dbody">
+<div class="srow">
+<div class="scard"><div class="sval">${v.times_used}</div><div class="slabel">Times Used</div></div>
+<div class="scard"><div class="sval">${hs(v)}</div><div class="slabel">Health Score</div></div>
+<div class="scard"><div style="margin-top:4px">${sbadge(v.status)}</div><div class="slabel">Status</div></div>
+</div>
+<div class="dsec"><div class="dsec-title">Contact</div>
+<div class="dgrid">
+<div><div class="dfl">Person</div><div class="dfv">${v.contact_person||'—'}</div></div>
+<div><div class="dfl">Phone</div><div class="dfv">${v.phone?`<a href="tel:${v.phone.replace(/\D/g,'')}">${v.phone}</a>`:'—'}</div></div>
+<div><div class="dfl">Email</div><div class="dfv">${v.email?`<a href="mailto:${v.email}">${v.email}</a>`:'—'}</div></div>
+<div><div class="dfl">Website</div><div class="dfv">${v.website?`<a href="https://${v.website}" target="_blank">${v.website}</a>`:'—'}</div></div>
+</div></div>
+<div class="dsec"><div class="dsec-title">Profile</div>
+<div class="dgrid">
+<div><div class="dfl">Trade Categories</div><div class="dfv">${(v.trade_categories||[]).join(', ')||'—'}</div></div>
+<div><div class="dfl">Service Areas</div><div class="dfv">${(v.service_areas||[]).join(', ')||'—'}</div></div>
+<div><div class="dfl">Pricing</div><div class="dfv">${v.pricing_profile||'—'}</div></div>
+<div><div class="dfl">Last Used</div><div class="dfv">${v.last_used_date||'—'}</div></div>
+</div></div>
+<div class="dsec"><div class="dsec-title">Ratings &amp; Flags</div>
+<div class="dgrid">
+<div><div class="dfl">Quality</div><div class="dfv">${strs(v.quality_rating)}</div></div>
+<div><div class="dfl">Reliability</div><div class="dfv">${strs(v.reliability_rating)}</div></div>
+</div>${flagH(v.flags)}</div>
+${v.notes?`<div class="dsec"><div class="dsec-title">Notes</div><div style="font-size:13px;color:var(--g800);line-height:1.6">${v.notes}</div></div>`:''}
+<div class="dsec">
+<div class="dsec-title"><span>Engagements (${eng.length})</span><button class="btn-add" style="font-size:11px;padding:5px 10px" onclick="openEng(${v.id})">+ Log Engagement</button></div>
+${engH}
+</div>
+<div style="display:flex;gap:10px;margin-top:16px;padding-top:16px;border-top:.5px solid var(--g200)">
+<button class="bsec" onclick="openEdit(${v.id})">Edit Vendor</button>
+<button class="bsec" style="color:#E24B4A;border-color:#E24B4A" onclick="delVendor(${v.id})">Delete Vendor</button>
+</div>
+</div>`;
+}
+
+// ── RENDER: MODALS ────────────────────────────────────────────────────────────
+function renderModal(isEdit){
+  const f=S.fd;
+  const cbs=(arr,all,key)=>all.map(item=>`<label class="cbi"><input type="checkbox" ${(arr||[]).includes(item)?'checked':''} onchange="tchk('${key}','${item}',this.checked)"> ${item}</label>`).join('');
+  document.getElementById('modal-inner').innerHTML=`
+<div class="modal-title">${isEdit?'Edit Vendor':'Add Vendor'}</div>
+<button class="mclose" onclick="closeModal()">&#215;</button>
+<div class="fg">
+<div class="fgrp"><label class="flabel">Company Name *</label><input class="finput" id="f-name" value="${f.display_name||''}" oninput="S.fd.display_name=this.value" placeholder="Acme Roofing"></div>
+<div class="fgrp"><label class="flabel">Contact Person</label><input class="finput" value="${f.contact_person||''}" oninput="S.fd.contact_person=this.value" placeholder="John Smith"></div>
+<div class="fgrp"><label class="flabel">Phone</label><input class="finput" value="${f.phone||''}" oninput="S.fd.phone=this.value" placeholder="(305) 555-0000"></div>
+<div class="fgrp"><label class="flabel">Email</label><input class="finput" value="${f.email||''}" oninput="S.fd.email=this.value" placeholder="vendor@email.com"></div>
+<div class="fgrp"><label class="flabel">Website</label><input class="finput" value="${f.website||''}" oninput="S.fd.website=this.value" placeholder="example.com"></div>
+<div class="fgrp"><label class="flabel">Role Type</label><select class="finput" onchange="S.fd.role_type=this.value"><option value="">Select...</option>${ROLE_TYPES.map(r=>`<option${f.role_type===r?' selected':''}>${r}</option>`).join('')}</select></div>
+<div class="fgrp"><label class="flabel">Status</label><select class="finput" onchange="S.fd.status=this.value">${STATUSES.map(s=>`<option${f.status===s?' selected':''}>${s}</option>`).join('')}</select></div>
+<div class="fgrp"><label class="flabel">Pricing Profile</label><select class="finput" onchange="S.fd.pricing_profile=this.value">${PRICING.map(p=>`<option${f.pricing_profile===p?' selected':''}>${p}</option>`).join('')}</select></div>
+<div class="fgrp"><label class="flabel">Quality Rating</label><div class="rin" id="qrat">${[1,2,3,4,5].map(i=>`<span class="rst${i<=(f.quality_rating||0)?' on':''}" onclick="setR('quality_rating',${i})" data-v="${i}">&#9733;</span>`).join('')}</div></div>
+<div class="fgrp"><label class="flabel">Reliability Rating</label><div class="rin" id="rrat">${[1,2,3,4,5].map(i=>`<span class="rst${i<=(f.reliability_rating||0)?' on':''}" onclick="setR('reliability_rating',${i})" data-v="${i}">&#9733;</span>`).join('')}</div></div>
+<div class="fgrp ff"><label class="flabel">Trade Categories</label><div class="cbgrid">${cbs(f.trade_categories,TRADE_CATS,'trade_categories')}</div></div>
+<div class="fgrp ff"><label class="flabel">Service Areas</label><div class="cbgrid">${cbs(f.service_areas,COUNTIES,'service_areas')}</div></div>
+<div class="fgrp ff"><label class="flabel">Flags</label><div class="cbgrid">
+<label class="cbi"><input type="checkbox" ${(f.flags||[]).includes('verified')?'checked':''} onchange="tchk('flags','verified',this.checked)"> Insurance Verified</label>
+<label class="cbi"><input type="checkbox" ${(f.flags||[]).includes('price-creep')?'checked':''} onchange="tchk('flags','price-creep',this.checked)"> Price Creep</label>
+<label class="cbi"><input type="checkbox" ${(f.flags||[]).includes('issues')?'checked':''} onchange="tchk('flags','issues',this.checked)"> Job Issues</label>
+<label class="cbi"><input type="checkbox" ${(f.flags||[]).includes('review')?'checked':''} onchange="tchk('flags','review',this.checked)"> Pending Review</label>
+</div></div>
+<div class="fgrp ff"><label class="flabel">Primary Vendor for Trade/Area?</label>
+<label class="cbi"><input type="checkbox" ${f.is_primary?'checked':''} onchange="S.fd.is_primary=this.checked"> Mark as Primary</label>
+</div>
+<div class="fgrp ff"><label class="flabel">Notes</label><textarea class="finput" rows="3" placeholder="Internal notes..." oninput="S.fd.notes=this.value">${f.notes||''}</textarea></div>
+</div>
+<div class="faction"><button class="bsec" onclick="closeModal()">Cancel</button><button class="bprim" onclick="saveVendor(${isEdit})">${isEdit?'Save Changes':'Add Vendor'}</button></div>`;
+  document.getElementById('modal-overlay').classList.add('open');
+}
+
+function renderEngModal(){
+  const f=S.efd;
+  const vn=(S.vendors.find(v=>v.id===f.vendor_id)||{}).display_name||'';
+  document.getElementById('eng-modal-inner').innerHTML=`
+<div class="modal-title">Log Engagement</div>
+<button class="mclose" onclick="closeEngModal()">&#215;</button>
+<div style="font-size:12px;color:var(--g600);margin-bottom:14px;font-family:'Montserrat',sans-serif">Vendor: <strong style="color:var(--black)">${vn}</strong></div>
+<div class="fg">
+<div class="fgrp ff"><label class="flabel">Property Address *</label><input class="finput" placeholder="1234 Main St, Miami, FL" oninput="S.efd.property_address=this.value"></div>
+<div class="fgrp"><label class="flabel">County</label><select class="finput" onchange="S.efd.county=this.value"><option value="">Select...</option>${COUNTIES.map(c=>`<option>${c}</option>`).join('')}</select></div>
+<div class="fgrp"><label class="flabel">Deal Path</label><select class="finput" onchange="S.efd.deal_path=this.value"><option value="">Select...</option><option>Path A Cash</option><option>Path B Sub-To</option><option>Path B Seller Finance</option><option>Path C Fix-to-List</option><option>Path C Referral</option></select></div>
+<div class="fgrp ff"><label class="flabel">Scope of Work</label><textarea class="finput" rows="2" placeholder="Work performed..." oninput="S.efd.scope=this.value"></textarea></div>
+<div class="fgrp"><label class="flabel">Quoted Price ($)</label><input class="finput" type="number" placeholder="0" oninput="S.efd.quoted_price=+this.value"></div>
+<div class="fgrp"><label class="flabel">Final Price ($)</label><input class="finput" type="number" placeholder="0" oninput="S.efd.final_price=+this.value"></div>
+<div class="fgrp"><label class="flabel">Start Date</label><input class="finput" type="date" oninput="S.efd.start_date=this.value"></div>
+<div class="fgrp"><label class="flabel">Completion Date</label><input class="finput" type="date" oninput="S.efd.completion_date=this.value"></div>
+<div class="fgrp"><label class="flabel">Deal Status</label><select class="finput" onchange="S.efd.deal_status=this.value"><option value="open">Open</option><option value="closed">Closed</option></select></div>
+<div class="fgrp"><label class="flabel">Outcome Rating</label><div class="rin" id="erat">${[1,2,3,4,5].map(i=>`<span class="rst" onclick="setER(${i})" data-v="${i}">&#9733;</span>`).join('')}</div></div>
+<div class="fgrp ff"><label class="flabel">Outcome Notes</label><textarea class="finput" rows="2" placeholder="How did it go?" oninput="S.efd.outcome_notes=this.value"></textarea></div>
+</div>
+<div class="faction"><button class="bsec" onclick="closeEngModal()">Cancel</button><button class="bprim" onclick="saveEng()">Log Engagement</button></div>`;
+  document.getElementById('eng-modal-overlay').classList.add('open');
+}
+
+// ── ACTIONS ───────────────────────────────────────────────────────────────────
+function render(){
+  if(S.view==='list') renderList();
+  else if(S.view==='qf') renderQF();
+  else if(S.view==='detail'){const v=S.vendors.find(x=>x.id===S.sel);v?renderDetail(v):(S.view='list',renderList());}
+}
+
+function openDetail(id){S.sel=id;S.view='detail';render();}
+
+function openAdd(){
+  S.fd={status:'Prospect',pricing_profile:'Unknown',quality_rating:0,reliability_rating:0,trade_categories:[],service_areas:[],flags:[],is_primary:false};
+  renderModal(false);
+}
+function openEdit(id){
+  const v=S.vendors.find(x=>x.id===id);if(!v)return;
+  S.fd=JSON.parse(JSON.stringify(v));
+  renderModal(true);
+}
+function openEng(vid){
+  S.efd={vendor_id:vid,outcome_rating:0,deal_status:'open',final_price:0,quoted_price:0};
+  renderEngModal();
+}
+function closeModal(){document.getElementById('modal-overlay').classList.remove('open');}
+function closeEngModal(){document.getElementById('eng-modal-overlay').classList.remove('open');}
+
+function tchk(key,val,checked){
+  if(!S.fd[key])S.fd[key]=[];
+  if(checked){if(!S.fd[key].includes(val))S.fd[key].push(val);}
+  else S.fd[key]=S.fd[key].filter(x=>x!==val);
+}
+function setR(key,val){
+  S.fd[key]=val;
+  const rid=key==='quality_rating'?'qrat':'rrat';
+  document.querySelectorAll(`#${rid} .rst`).forEach(s=>{s.classList.toggle('on',+s.dataset.v<=val);});
+}
+function setER(val){
+  S.efd.outcome_rating=val;
+  document.querySelectorAll('#erat .rst').forEach(s=>{s.classList.toggle('on',+s.dataset.v<=val);});
+}
+
+async function saveVendor(isEdit){
+  const f=S.fd;
+  if(!f.display_name){showToast('Company name is required.');return;}
+  if(isEdit){
+    const idx=S.vendors.findIndex(v=>v.id===f.id);
+    if(idx>=0)S.vendors[idx]={...S.vendors[idx],...f};
+    await saveVendorRow(S.vendors[idx>=0?idx:0],false);
+    showToast('Vendor updated & saved to Drive.');
+  } else {
+    const nv={...f,id:nextVId++,times_used:0,last_used_date:''};
+    S.vendors.push(nv);
+    await saveVendorRow(nv,true);
+    showToast('Vendor added & saved to Drive.');
+  }
+  closeModal();
+  updateHeaderStats();
+  render();
+}
+
+async function saveEng(){
+  const f=S.efd;
+  if(!f.property_address){showToast('Property address is required.');return;}
+  const e={...f,id:nextEId++};
+  S.engagements.push(e);
+  const v=S.vendors.find(x=>x.id===f.vendor_id);
+  if(v){v.times_used=(v.times_used||0)+1;if(f.completion_date)v.last_used_date=f.completion_date;}
+  await saveEngRow(e,v);
+  showToast('Engagement logged & saved to Drive.');
+  closeEngModal();
+  updateHeaderStats();
+  render();
+}
+
+async function delVendor(id){
+  if(!confirm('Delete this vendor and all their engagements? This cannot be undone.'))return;
+  await clearVendorRow(id);
+  S.vendors=S.vendors.filter(v=>v.id!==id);
+  S.engagements=S.engagements.filter(e=>e.vendor_id!==id);
+  S.view='list';S.sel=null;
+  showToast('Vendor deleted.');
+  updateHeaderStats();
+  render();
+}
+
+// ── BOOT ──────────────────────────────────────────────────────────────────────
+(function boot(){
+  const authed = checkAuthCallback();
+  if(authed){
+    document.getElementById('auth-screen').style.display='none';
+    document.getElementById('app').style.display='flex';
+    render(); // show loading state immediately
+    initSheet();
+  }
+})();
+</script>
+</body>
+</html>
